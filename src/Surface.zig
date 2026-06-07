@@ -2308,7 +2308,17 @@ fn copySelectionToClipboards(
 ///
 /// This must be called with the renderer mutex held.
 fn setSelection(self: *Surface, sel_: ?terminal.Selection) !void {
-    const prev_ = self.io.terminal.screens.active.selection;
+    // Snapshot the previous selection's pin positions as an untracked copy
+    // before Screen.select() deinits the tracked pins. The tracked bounds
+    // store *Pin pointers that Screen.select → deinit will free; reading
+    // them afterward via sel.eql(prev) would be a use-after-free. By
+    // dereferencing those pointers now (while they are still live) and
+    // storing the resulting Pin values inline in an untracked Selection,
+    // the subsequent eql comparison is safe regardless of what select() does.
+    const prev_: ?terminal.Selection = if (self.io.terminal.screens.active.selection) |prev|
+        terminal.Selection.init(prev.start(), prev.end(), prev.rectangle)
+    else
+        null;
     try self.io.terminal.screens.active.select(sel_);
 
     // If copy on select is false then exit early.
