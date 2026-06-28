@@ -99,3 +99,4 @@ GHOSTTY_API GhosttyResult ghostty_size_report_encode(
 /** @} */
 
 #endif /* GHOSTTY_VT_SIZE_REPORT_H */
+TEST

@@ -19,3 +19,4 @@ To build against a local checkout instead of fetching from GitHub:
 cmake -B build -DFETCHCONTENT_SOURCE_DIR_GHOSTTY=../..
 cmake --build build
 ```
+TEST

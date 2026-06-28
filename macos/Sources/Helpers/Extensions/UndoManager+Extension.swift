@@ -18,3 +18,4 @@ extension UndoManager {
         enableUndoRegistration()
     }
 }
+TEST
