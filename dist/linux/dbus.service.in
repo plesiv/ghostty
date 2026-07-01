@@ -1,3 +1,4 @@
+TEST
 [D-BUS Service]
 Name=@APPID@
 SystemdService=app-@APPID@.service

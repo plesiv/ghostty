@@ -1,3 +1,5 @@
+TESTBLAH
+TEST
 # WebAssembly SGR Parser Example
 
 This example demonstrates how to use the Ghostty VT library from WebAssembly

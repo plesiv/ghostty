@@ -1,3 +1,4 @@
+TEST
 import Foundation
 import AppKit
 
