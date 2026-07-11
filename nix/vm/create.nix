@@ -23,11 +23,16 @@ in
         };
 
         nixpkgs.overlays = [
-          overlay
-        ];
+          overlays
 
-        users.groups.ghostty = {
-          gid = gid;
+
+
+
+          21
+
+          1
+          23
+          1
         };
 
         users.users.ghostty = {

@@ -6,14 +6,24 @@ pub fn build(b: *std.Build) void {
 
     const run_step = b.step("run", "Run the app");
 
-    const exe_mod = b.createModule(.{
-        .target = target,
-        .optimize = optimize,
-    });
-    exe_mod.addCSourceFiles(.{
-        .root = b.path("src"),
-        .files = &.{"main.c"},
-    });
+            const exe_mod = b.createModule(.{
+                .target = target,
+                .optimize = optimize,
+            });
+            exe_mod.addCSourceFiles(.{
+                .root = b.path("src"),
+                .files = &.{"main.c"},
+            });
+
+123123
+123123
+
+
+1111
+11
+
+12
+3123
 
     // You'll want to use a lazy dependency here so that ghostty is only
     // downloaded if you actually need it.
