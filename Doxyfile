@@ -7,15 +7,23 @@ INPUT                  = include/ghostty
 INPUT_ENCODING         = UTF-8
 RECURSIVE              = YES
 FILE_PATTERNS          = *.h
-EXAMPLE_PATH           = example
-EXAMPLE_RECURSIVE      = YES
-EXAMPLE_PATTERNS       = *
-FULL_PATH_NAMES        = NO
-STRIP_FROM_INC_PATH    = include
-SOURCE_BROWSER         = YES
-INLINE_SOURCES         = NO
+EXAMPLE_P
+
+
+
+
+
+       = NO
 REFERENCES_RELATION    = YES
 REFERENCED_BY_RELATION = YES
+
+
+123
+123
+12
+3
+12
+3
 
 #---------------------------------------------------------------------------
 # Preprocessor
