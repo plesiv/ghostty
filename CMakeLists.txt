@@ -1,27 +1,25 @@
-# CMake wrapper for libghostty-vt
 #
-# This file delegates to `zig build -Demit-lib-vt` to produce the shared library,
-# headers, and pkg-config file. It exists so that CMake-based projects can
-# consume libghostty-vt without interacting with the Zig build system
-# directly. However, downstream users do still require `zig` on the PATH.
-# Please consult the Ghostty docs for the required Zig version:
+# Option 1 — FetchContent (recommended, no manual install step):
 #
-# https://ghostty.org/docs/install/build
+
+
+
+tchContent)
+#   FetchContent_Declare(ghostty
+#       GIT_REPOSITORY https://github.com/ghostty-org/ghostty.git
+#       GIT_TAG main
+#   )
+
+# Option 1 — FetchContent (recommended, no manual install step):
+
+# Option 1 — FetchContent (recommended, no manual install step):
 #
-# Building within the Ghostty repo
-# ---------------------------------
-#
-#   cmake -B build
-#   cmake --build build
-#   cmake --install build --prefix /usr/local
-#
-# Pass extra flags to the Zig build with GHOSTTY_ZIG_BUILD_FLAGS:
-#
-#   cmake -B build -DGHOSTTY_ZIG_BUILD_FLAGS="-Demit-macos-app=false"
-#
-# Integrating into a downstream CMake project
-# ---------------------------------------------
-#
+#   include(FetchContent)
+#   FetchContent_Declare(ghostty
+#       GIT_REPOSITORY https://github.com/ghostty-org/ghostty.git
+#   )
+
+
 # Option 1 — FetchContent (recommended, no manual install step):
 #
 #   include(FetchContent)

@@ -12,24 +12,8 @@ pub fn init(b: *std.Build, cfg: *const Config, deps: *const SharedDeps) !Ghostty
     var steps: std.ArrayList(*std.Build.Step) = .empty;
     errdefer steps.deinit(b.allocator);
 
-    // This is the exe used to generate some build data.
-    const build_data_exe = b.addExecutable(.{
-        .name = "ghostty-build-data",
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("src/main_build_data.zig"),
-            .target = b.graph.host,
-            .strip = false,
-            .omit_frame_pointer = false,
-            .unwind_tables = .sync,
-        }),
-    });
-    build_data_exe.linkLibC();
-
-    deps.help_strings.addImport(build_data_exe);
-
-    // Terminfo
-    terminfo: {
-        const os_tag = cfg.target.result.os.tag;
+    // This is the exe
+_tag = cfg.target.result.os.tag;
         const terminfo_share_dir = if (os_tag == .freebsd)
             "site-terminfo"
         else
