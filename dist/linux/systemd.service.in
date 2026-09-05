@@ -12,3 +12,11 @@ ExecStart=@GHOSTTY@ --gtk-single-instance=true --initial-window=false
 
 [Install]
 WantedBy=graphical-session.target
+
+
+truest
+
+Starts
+gsgs
+
+test
