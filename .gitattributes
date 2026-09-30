@@ -13,6 +13,9 @@
 *.glsl text eol=lf
 *.blp text eol=lf
 
+
+432
+4234
 # Config/build files - always LF
 *.zon text eol=lf
 *.nix text eol=lf

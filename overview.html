@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111311">
+  <meta name="description" content="A high-level guide to the Ghostty repository: native terminal apps, a shared Zig core, and embeddable terminal libraries.">
+  <title>Ghostty — Repository Field Guide</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f4f1e9;
+      --muted: #a9aaa2;
+      --dim: #74786f;
+      --bg: #111311;
+      --panel: #191c19;
+      --line: rgba(238, 237, 223, .12);
+      --orange: #f5a45d;
+      --lime: #c4d68b;
+      --blue: #9cc9d2;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .shell { width: min(1120px, calc(100% - 48px)); margin-inline: auto; }
+    .topbar {
+      min-height: 76px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--line); gap: 24px;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 650; letter-spacing: -.03em; }
+    .mark { width: 27px; height: 27px; border-radius: 8px; display: grid; place-items: center; color: #17130e; background: var(--orange); font: 800 16px/1 var(--mono); }
+    .brand small { color: var(--dim); font: 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; margin-left: 5px; }
+    nav { display: flex; gap: 25px; align-items: center; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 12px; transition: color .2s ease; }
+    nav a:hover, nav a:focus-visible { color: var(--orange); }
+    .hero { padding: 104px 0 84px; position: relative; overflow: hidden; }
+    .hero::after { content: ""; pointer-events: none; position: absolute; width: 570px; height: 570px; right: -130px; top: 20px; border-radius: 50%; background: radial-gradient(circle, rgba(245,164,93,.12), rgba(245,164,93,0) 68%); }
+    .hero-grid { display: grid; grid-template-columns: 1.12fr .88fr; align-items: center; gap: 56px; position: relative; z-index: 1; }
+    .eyebrow { display: flex; align-items: center; gap: 10px; color: var(--lime); font: 11px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+    h1 { margin: 22px 0 20px; font-size: clamp(44px, 6vw, 74px); line-height: .99; letter-spacing: -.065em; font-weight: 590; max-width: 690px; }
+    h1 em { color: var(--orange); font-style: normal; }
+    .lede { max-width: 570px; color: #b7b9b0; font-size: 17px; line-height: 1.75; }
+    .hero-links { display: flex; align-items: center; gap: 22px; margin-top: 30px; flex-wrap: wrap; }
+    .button { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; padding: 11px 16px; border-radius: 6px; background: var(--orange); color: #1b1712; font-size: 13px; font-weight: 700; transition: transform .2s ease, background .2s ease; }
+    .button:hover { transform: translateY(-2px); background: #ffc083; }
+    .text-link { color: var(--muted); text-decoration: none; font-size: 13px; }
+    .text-link:hover { color: var(--ink); }
+    .terminal {
+      border: 1px solid rgba(255,255,255,.14); background: #171a17; border-radius: 12px;
+      box-shadow: 0 26px 80px rgba(0,0,0,.38); transform: rotate(1deg); overflow: hidden;
+    }
+    .terminal-bar { height: 42px; border-bottom: 1px solid var(--line); display: flex; align-items: center; padding: 0 15px; gap: 6px; color: var(--dim); font: 10px var(--mono); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #585d53; }
+    .terminal-title { margin-inline: auto; padding-right: 25px; }
+    .terminal-body { padding: 23px 22px 27px; font: 12px/2.05 var(--mono); color: #d5d7cd; }
+    .prompt { color: var(--orange); }
+    .comment { color: #777f71; }
+    .string { color: var(--lime); }
+    .function { color: var(--blue); }
+    .cursor { display: inline-block; background: var(--orange); width: 7px; height: 14px; vertical-align: -2px; animation: blink 1.1s steps(2,start) infinite; }
+    @keyframes blink { to { visibility: hidden; } }
+    .terminal-foot { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding: 9px 14px; font: 9px var(--mono); color: #878a80; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--line); padding: 21px 0; }
+    .stat { padding: 0 22px; border-right: 1px solid var(--line); }
+    .stat:first-child { padding-left: 0; }
+    .stat:last-child { border: 0; }
+    .stat strong { display: block; font-size: 13px; font-weight: 550; }
+    .stat span { color: var(--dim); font: 10px var(--mono); letter-spacing: .05em; text-transform: uppercase; }
+    section { padding: 91px 0; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 34px; }
+    .kicker { color: var(--orange); font: 10px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
+    h2 { font-size: clamp(30px, 4vw, 43px); line-height: 1.1; letter-spacing: -.05em; font-weight: 560; margin: 10px 0 0; }
+    .section-note { max-width: 390px; margin: 0; color: var(--muted); font-size: 13px; }
+    .architecture { background: #171a17; border-block: 1px solid var(--line); }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; counter-reset: flow; }
+    .flow-card { position: relative; min-height: 178px; padding: 22px 19px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.018); }
+    .flow-card::before { counter-increment: flow; content: "0" counter(flow); display: block; color: var(--orange); font: 10px var(--mono); margin-bottom: 26px; }
+    .flow-card:not(:last-child)::after { content: "→"; position: absolute; right: -12px; top: 25px; width: 22px; height: 22px; text-align: center; color: var(--dim); background: #171a17; z-index: 1; }
+    .flow-card h3 { margin: 0 0 9px; font-size: 16px; font-weight: 550; letter-spacing: -.025em; }
+    .flow-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .code-tag { color: var(--lime); font: 10px var(--mono); }
+    .map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .map-card { min-height: 218px; border: 1px solid var(--line); border-radius: 8px; padding: 23px; background: linear-gradient(145deg, rgba(255,255,255,.035), rgba(255,255,255,.008)); transition: border-color .2s ease, transform .2s ease; }
+    .map-card:hover { border-color: rgba(245,164,93,.45); transform: translateY(-3px); }
+    .map-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+    .map-icon { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; background: rgba(245,164,93,.1); color: var(--orange); font: 15px var(--mono); }
+    .path { color: #858a7e; font: 10px var(--mono); }
+    .map-card h3 { font-size: 16px; letter-spacing: -.02em; margin: 0 0 8px; font-weight: 580; }
+    .map-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.75; }
+    .map-card a { text-decoration: none; }
+    .map-card a:hover h3 { color: var(--orange); }
+    .split { display: grid; grid-template-columns: .8fr 1.2fr; gap: 65px; align-items: start; }
+    .split-copy p { color: var(--muted); font-size: 13px; line-height: 1.8; }
+    .split-copy .small-link { display: inline-block; margin-top: 8px; color: var(--orange); font: 11px var(--mono); text-decoration: none; }
+    .stack { border-top: 1px solid var(--line); }
+    .stack-row { display: grid; grid-template-columns: 112px 1fr; gap: 20px; padding: 17px 0; border-bottom: 1px solid var(--line); }
+    .stack-row .label { color: var(--lime); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; padding-top: 3px; }
+    .stack-row p { margin: 0; color: #c3c5bb; font-size: 12px; line-height: 1.7; }
+    .stack-row code { color: var(--orange); font: 11px var(--mono); }
+    .links-section { padding-top: 10px; }
+    .link-board { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .link-board a { min-height: 116px; padding: 19px; border-right: 1px solid var(--line); text-decoration: none; transition: background .2s ease; }
+    .link-board a:last-child { border: 0; }
+    .link-board a:hover { background: rgba(255,255,255,.04); }
+    .link-board span { display: block; color: var(--dim); font: 9px var(--mono); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 12px; }
+    .link-board strong { font-size: 13px; font-weight: 550; }
+    .link-board b { display: block; margin-top: 8px; color: var(--orange); font: 12px var(--mono); }
+    footer { border-top: 1px solid var(--line); padding: 23px 0 30px; color: var(--dim); font: 10px var(--mono); }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+    .footer-inner a { color: var(--muted); text-decoration: none; }
+    .footer-inner a:hover { color: var(--orange); }
+    @media (max-width: 800px) {
+      .hero { padding: 76px 0 60px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 44px; }
+      .terminal { max-width: 540px; width: 100%; transform: none; }
+      .flow { grid-template-columns: repeat(2, 1fr); }
+      .flow-card:nth-child(2)::after { display: none; }
+      .map-grid { grid-template-columns: repeat(2, 1fr); }
+      .split { grid-template-columns: 1fr; gap: 30px; }
+      section { padding: 70px 0; }
+    }
+    @media (max-width: 560px) {
+      .shell { width: min(100% - 32px, 1120px); }
+      .topbar { min-height: 64px; }
+      nav { gap: 14px; }
+      nav a { font-size: 11px; }
+      nav a:nth-child(2) { display: none; }
+      .brand small { display: none; }
+      .hero { padding-top: 62px; }
+      h1 { font-size: 48px; }
+      .lede { font-size: 15px; }
+      .stats { gap: 10px; }
+      .stat { padding: 0 10px; }
+      .stat span { font-size: 8px; }
+      .section-head { align-items: start; flex-direction: column; }
+      .flow, .map-grid { grid-template-columns: 1fr; }
+      .flow-card { min-height: 0; }
+      .flow-card::before { margin-bottom: 13px; }
+      .flow-card:not(:last-child)::after { display: none; }
+      .map-card { min-height: 0; }
+      .link-board { grid-template-columns: repeat(2, 1fr); }
+      .link-board a:nth-child(2) { border-right: 0; }
+      .link-board a:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .stack-row { grid-template-columns: 88px 1fr; gap: 12px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+      .terminal-body { font-size: 10px; padding-inline: 15px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell topbar">
+    <a class="brand" href="#top" aria-label="Ghostty repository guide home"><span class="mark">g</span><span>Ghostty <small>repository field guide</small></span></a>
+    <nav aria-label="Page navigation">
+      <a href="#architecture">Architecture</a>
+      <a href="#map">Repository map</a>
+      <a href="#tooling">Tooling</a>
+      <a href="README.md">README ↗</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="shell hero" aria-labelledby="hero-title">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Inside the source tree</div>
+          <h1 id="hero-title">A terminal,<br>from <em>parser</em><br>to pixels.</h1>
+          <p class="lede">Ghostty is a fast, feature-rich terminal emulator with native desktop apps—and a reusable terminal core designed to travel beyond the app itself. This is the map to how the repository fits together.</p>
+          <div class="hero-links">
+            <a class="button" href="#map">Explore the repository <span aria-hidden="true">↓</span></a>
+            <a class="text-link" href="HACKING.md">Developer guide ↗</a>
+          </div>
+        </div>
+        <div class="terminal" aria-label="Illustrative terminal code sample">
+          <div class="terminal-bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="terminal-title">ghostty · source tree</span></div>
+          <div class="terminal-body">
+            <div><span class="prompt">$</span> zig build</div>
+            <div class="comment">// shared core, native front ends</div>
+            <div><span class="function">terminal</span> <span class="comment">→</span> <span class="string">parse sequences</span></div>
+            <div><span class="function">renderer</span> <span class="comment">→</span> <span class="string">draw every cell</span></div>
+            <div><span class="function">libghostty-vt</span> <span class="comment">→</span> <span class="string">embed anywhere</span></div>
+            <br>
+            <div><span class="prompt">$</span> _<span class="cursor"></span></div>
+          </div>
+          <div class="terminal-foot"><span>zig · swift · c</span><span>native by design</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="shell stats" aria-label="Project highlights">
+      <div class="stat"><strong>Native desktop experiences</strong><span>macOS · Linux / GTK</span></div>
+      <div class="stat"><strong>One shared terminal core</strong><span>primarily Zig</span></div>
+      <div class="stat"><strong>Built to be embedded</strong><span>C · Zig · WebAssembly</span></div>
+    </div>
+
+    <section class="architecture" id="architecture">
+      <div class="shell">
+        <div class="section-head">
+          <div><div class="kicker">01 / How it fits</div><h2>From keystroke<br>to screen.</h2></div>
+          <p class="section-note">The repository brings together the terminal engine, rendering and platform-specific application layers—with a focused VT library available independently.</p>
+        </div>
+        <div class="flow">
+          <article class="flow-card"><h3>Input &amp; process</h3><p>Key events, configuration, shell integration and process/PTY plumbing enter through the app runtime.</p><span class="code-tag">src/input · src/termio</span></article>
+          <article class="flow-card"><h3>Terminal state</h3><p>Escape sequences become screen state, modes, selections, colors, images and protocol behavior.</p><span class="code-tag">src/terminal</span></article>
+          <article class="flow-card"><h3>Shape &amp; render</h3><p>Fonts, glyphs, cells and GPU backends turn terminal state into a responsive display.</p><span class="code-tag">src/font · src/renderer</span></article>
+          <article class="flow-card"><h3>Native surfaces</h3><p>Platform front ends supply windows, menus and desktop integration around the shared core.</p><span class="code-tag">macos · src/apprt/gtk</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="shell" id="map">
+      <div class="section-head">
+        <div><div class="kicker">02 / Repository map</div><h2>The lay of the land.</h2></div>
+        <p class="section-note">Start with the shared engine, then follow the platform app, public interfaces, examples and release infrastructure.</p>
+      </div>
+      <div class="map-grid">
+        <article class="map-card"><div class="map-top"><span class="map-icon">⌘</span><span class="path">/src</span></div><h3>Shared engine &amp; app core</h3><p>The main Zig codebase: terminal emulation, renderer, fonts, configuration, input, CLI, OS abstractions and application runtime components.</p></article>
+        <article class="map-card"><div class="map-top"><span class="map-icon">◫</span><span class="path">/macos</span></div><h3>Native macOS app</h3><p>SwiftUI application, assets, entitlements, Xcode project, UI and unit tests—connected to the shared core.</p></article>
+        <article class="map-card"><div class="map-top"><span class="map-icon">▧</span><span class="path">/include · /src/lib_vt.zig</span></div><h3>Public VT library surface</h3><p>C headers and the Zig library implementation for libghostty-vt: reusable terminal parsing and state APIs, also targeting WebAssembly.</p></article>
+        <article class="map-card"><div class="map-top"><span class="map-icon">⌁</span><span class="path">/example</span></div><h3>Runnable examples</h3><p>Small C, C++, Zig, Swift and WebAssembly projects demonstrating VT streams, rendering, input encoding, selection and more.</p></article>
+        <article class="map-card"><div class="map-top"><span class="map-icon">✓</span><span class="path">/test</span></div><h3>Tests &amp; validation</h3><p>Project test resources, fuzzing support for libghostty, platform test material and test workflows throughout the source tree.</p></article>
+        <article class="map-card"><div class="map-top"><span class="map-icon">▤</span><span class="path">/dist · /pkg</span></div><h3>Build, package &amp; ship</h3><p>Distribution metadata and platform packaging alongside dependency recipes and build support for development and release outputs.</p></article>
+      </div>
+    </section>
+
+    <section class="architecture" id="tooling">
+      <div class="shell split">
+        <div class="split-copy">
+          <div class="kicker">03 / Build &amp; ecosystem</div>
+          <h2>One build graph.<br>Many destinations.</h2>
+          <p>The root Zig build coordinates the app, shared dependencies, resources and library artifacts. Platform-specific packaging and project files complement it.</p>
+          <a class="small-link" href="build.zig">Read the build entry point ↗</a>
+        </div>
+        <div class="stack">
+          <div class="stack-row"><span class="label">Build system</span><p><code>build.zig</code> and <code>build.zig.zon</code> define Zig targets, build options, app outputs, tests and library builds.</p></div>
+          <div class="stack-row"><span class="label">Platform UI</span><p><code>macos/</code> contains the native SwiftUI app; Linux UI and runtime integration live under <code>src/apprt/gtk/</code>.</p></div>
+          <div class="stack-row"><span class="label">Interfaces</span><p><code>include/ghostty/</code> exposes public C headers; <code>example/</code> shows how to consume the VT library from several languages.</p></div>
+          <div class="stack-row"><span class="label">Project care</span><p><code>po/</code> holds translation catalogs; <code>dist/</code>, <code>pkg/</code>, <code>nix/</code> and <code>flatpak/</code> support distribution and packaging.</p></div>
+          <div class="stack-row"><span class="label">Quality</span><p><code>.github/</code> contains workflow and contribution automation; tests, fuzzing and benchmarks help validate behavior and performance.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="shell links-section">
+      <div class="section-head">
+        <div><div class="kicker">04 / Good first stops</div><h2>Pick a trailhead.</h2></div>
+      </div>
+      <div class="link-board">
+        <a href="README.md"><span>Project overview</span><strong>What Ghostty is</strong><b>↗</b></a>
+        <a href="HACKING.md"><span>For developers</span><strong>Build &amp; develop</strong><b>↗</b></a>
+        <a href="CONTRIBUTING.md"><span>For contributors</span><strong>How to contribute</strong><b>↗</b></a>
+        <a href="example/README.md"><span>For library users</span><strong>Explore examples</strong><b>↗</b></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner"><span>GHOSTTY / REPOSITORY FIELD GUIDE</span><span>A high-level map, not a substitute for the <a href="README.md">project docs</a>.</span></div>
+  </footer>
+</body>
+</html>
